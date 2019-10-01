@@ -18,6 +18,7 @@ use strict;
 use warnings;
 use 5.010;
 use Data::Dumper qw(Dumper);
+use utf8;
 
 my $filename;
 my $fh;
@@ -62,7 +63,7 @@ for my $line (<$fh>) {
 }
 
 #calcular o numero medio de palavras.
-#print $textToStudy;
+print "$textToStudy\n\n\n";
 my $nWrd_Phr = 0;
 my @tam_Phr;
 my $aux = 0;
@@ -93,7 +94,7 @@ print "Numero de palavras difíceis: $nWrd_DF\n";
 #4. Contabilize o número de palavras "difíceis"(palavras com mais de 3 sílabas) no trecho. Divida esta quantidade pelo total de palavras.
 #PROP_P_DIF=NUM_P_DIF/NUM_PALAVRAS
 my $prob_DF;
-$prob_DF=$nWrd_DF/$countWrd;
+$prob_DF=($nWrd_DF/$countWrd)*100;
 print "Probabiblidade de palavras dificeis: $prob_DF %\n";
 #5. O índice é o valor arredondado da soma das duas quantidades acima, multiplicadas por 0.4
 #INDICE=int(0.4*(MP+PROP_P_DIF))
