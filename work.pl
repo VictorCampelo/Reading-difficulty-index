@@ -1,11 +1,8 @@
 
-
 #indice de dificuldade de leitura de um texto
-
-#O script deve receber como entrada um arquivo texto e retornar o índice de dificuldade de leitura do texto nele contido de acordo com a idade escolar de uma pessoa. Ex: Indice de 10 indica que o texto é compreensível por alguém com 10 anos de vida escolar.
-
+#O script deve receber como entrada um arquivo texto e retornar o índice de dificuldade de leitura do texto nele contido de acordo com a idade 
+#escolar de uma pessoa. Ex: Indice de 10 indica que o texto é compreensível por alguém com 10 anos de vida escolar.
 #O cálculo deste indice deve seguir o seguinte algoritmo:
-
 #1. Escolha um trecho do texto com pelo menos 100 palavras.
 #2. Contabilize o número de frases. Frases neste contexto são terminadas em virgula ou ponto.
 #3. Encontre o número médio de palavras por frase.
@@ -14,7 +11,6 @@
 #PROP_P_DIF=NUM_P_DIF/NUM_PALAVRAS
 #5. O índice é o valor arredondado da soma das duas quantidades acima, multiplicadas por 0.4
 #INDICE=int(0.4*(MP+PROP_P_DIF))
-
 #A parte crucial do algoritmo é como contabilizar o número de sílabas da palavra. Deve ser considerada a divisão silábica da lingua portuguesa.
 #Dica: A divisão silábica está diretamente relacionada ao número de vogais na palavra. Salvo os casos de ditongos e tritongos.
 
@@ -23,15 +19,26 @@ use warnings;
 use 5.010;
 use Data::Dumper qw(Dumper);
 
-my $filename = 'text.txt';
-my $text;
-open(my $fh, '<:encoding(UTF-8)', $filename)
+my $filename;
+my $fh;
+if(defined $ARGV[0]){
+	my $name = $ARGV[0];
+	print "$name\n\n";
+	if ($name =~ /\w+\.txt$/) {
+		$filename=$name;	
+	}
+	else{
+		print "Não foi possivel localizar o arquivo.\n\n";
+		exit 1;
+	}
+}
+else{
+	$filename = 'text.txt';
+}
+
+open($fh, '<:encoding(UTF-8)', $filename) 
 or die "Não foi possível abrir o arquivo '$filename' $!";
 
-#my $line = " Esta é uma linha de texto ";
-#my @wc = split(/\s/, $fh);
-#say Dumper \@wc;
-#say $fh;
 my $countWrd = 0;
 my $flag = 0;
 my $textToStudy = "";
@@ -56,28 +63,42 @@ for my $line (<$fh>) {
 
 #calcular o numero medio de palavras.
 #print $textToStudy;
-my $count = 0;
-my @tamPhr;
+my $nWrd_Phr = 0;
+my @tam_Phr;
 my $aux = 0;
-my $qtdWrd = 0;
+my $nWrd_DF = 0;
 foreach my $char (split /\s/, $textToStudy) {
-	#print "$char\n";
-	$count++;
+	#nWrd_Phr  conta a quantidade de palavras por frase
+	$nWrd_Phr ++;
 	#contar o numero de silabas.
-	if($char =~ /([aáâãàeéêãiíîĩìoóôòõuùúûũ]|[bcdfghjklmnpqrstvwxyz]{1,3}[aáâãàeéêãiíîĩìoóôòõuùúûũ]{1,3})([bcdfghjklmnpqrstvwxyz]{1,3}[aáâãàeéêãiíîĩìoóôòõuùúûũ]{1,3})([bcçdfghjklmnpqrstvwxyz]{1,3}[aáâãàeéêãiíîĩìoóôòõuùúûũ]{1,3})/){
-		$qtdWrd++;
+	if($char =~ /([bcçdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]{0,3}[aáâãàeéêãiíîĩìoóôòõuùúûũAÁÂÃÀEÉÊÃIÍÎĨÌOÓÔÒÕUÙÚÛŨ]{1,3})([bcçdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]{1,3}[aáâãàeéêãiíîĩìoóôòõuùúûũAÁÂÃÀEÉÊÃIÍÎĨÌOÓÔÒÕUÙÚÛŨ]{1,3})([bcçdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]{1,3}[aáâãàeéêãiíîĩìoóôòõuùúûũAÁÂÃÀEÉÊÃIÍÎĨÌOÓÔÒÕUÙÚÛŨ]{1,3})/){
+		$nWrd_DF++;
 	}
 	if(($char =~ /\w+\.\s?/) || ($char =~ /\w+\,\s?/)){
-		#print "$char\n";
-		$tamPhr[$aux] = $count;
-		$count = 0;
+		#numero de frases e seus tamanhos
+		$tam_Phr[$aux] = $nWrd_Phr ;
+		$nWrd_Phr  = 0;
 		$aux++;
 	}
 }
 my $MP;
-for (my $var = 0; $var < scalar @tamPhr; $var++) {
-	$MP += $tamPhr[$var];
+for (my $var = 0; $var < scalar @tam_Phr; $var++) {
+	$MP += $tam_Phr[$var];
 }
+#3. Encontre o número médio de palavras por frase.
+#MP=NUM_PALAVRAS/NUM_FRASES
 $MP = $MP/$aux;
-print "$MP\n";
-print "$qtdWrd\n\n";
+print "Numero medio de palavras: $MP\n";
+print "Numero de palavras difíceis: $nWrd_DF\n";
+#4. Contabilize o número de palavras "difíceis"(palavras com mais de 3 sílabas) no trecho. Divida esta quantidade pelo total de palavras.
+#PROP_P_DIF=NUM_P_DIF/NUM_PALAVRAS
+my $prob_DF;
+$prob_DF=$nWrd_DF/$countWrd;
+print "Probabiblidade de palavras dificeis: $prob_DF %\n";
+#5. O índice é o valor arredondado da soma das duas quantidades acima, multiplicadas por 0.4
+#INDICE=int(0.4*(MP+PROP_P_DIF))
+my $idc;
+$idc=int(0.4*($MP+$prob_DF));
+print "indice de dificuldade de leitura de um texto: $idc anos\n\n";
+
+exit 0;
