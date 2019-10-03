@@ -19,6 +19,7 @@ use warnings;
 use 5.010;
 use Data::Dumper qw(Dumper);
 use utf8;
+use Encode;
 
 my $filename;
 my $fh;
@@ -63,17 +64,18 @@ for my $line (<$fh>) {
 }
 
 #calcular o numero medio de palavras.
-print "$textToStudy\n\n\n";
 my $nWrd_Phr = 0;
 my @tam_Phr;
 my $aux = 0;
 my $nWrd_DF = 0;
+
 foreach my $char (split /\s/, $textToStudy) {
 	#nWrd_Phr  conta a quantidade de palavras por frase
 	$nWrd_Phr ++;
 	#contar o numero de silabas.
-	if($char =~ /([bcçdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]{0,3}[aáâãàeéêãiíîĩìoóôòõuùúûũAÁÂÃÀEÉÊÃIÍÎĨÌOÓÔÒÕUÙÚÛŨ]{1,3})([bcçdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]{1,3}[aáâãàeéêãiíîĩìoóôòõuùúûũAÁÂÃÀEÉÊÃIÍÎĨÌOÓÔÒÕUÙÚÛŨ]{1,3})([bcçdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]{1,3}[aáâãàeéêãiíîĩìoóôòõuùúûũAÁÂÃÀEÉÊÃIÍÎĨÌOÓÔÒÕUÙÚÛŨ]{1,3})/){
+	if($char =~ /(?i)([bcçdfghjklmnpqrstvwxyz]{0,3}([iu]{0,1}[aeo]{1}[iu]{0,1}|[a-uã-ũ]{1,3}))(([bcçdfghjklmnpqrstvwxyz]{1,3}([iu]{0,1}[aeo]{1}[iu]{0,1}|[a-uã-ũ]{1,3}))|[áéíóúâêîôû]{1})(([bcçdfghjklmnpqrstvwxyz]{1,3}([iu]{0,1}[aeo]{1}[iu]{0,1}|[a-uã-ũ]{1,3}))|[áéíóúâêîôû]{1})/){
 		$nWrd_DF++;
+		print "$char - "
 	}
 	if(($char =~ /\w+\.\s?/) || ($char =~ /\w+\,\s?/)){
 		#numero de frases e seus tamanhos
@@ -94,7 +96,7 @@ print "Numero de palavras difíceis: $nWrd_DF\n";
 #4. Contabilize o número de palavras "difíceis"(palavras com mais de 3 sílabas) no trecho. Divida esta quantidade pelo total de palavras.
 #PROP_P_DIF=NUM_P_DIF/NUM_PALAVRAS
 my $prob_DF;
-$prob_DF=($nWrd_DF/$countWrd)*100;
+$prob_DF=($nWrd_DF/$countWrd);
 print "Probabiblidade de palavras dificeis: $prob_DF %\n";
 #5. O índice é o valor arredondado da soma das duas quantidades acima, multiplicadas por 0.4
 #INDICE=int(0.4*(MP+PROP_P_DIF))
